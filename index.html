@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QA Tracker</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f8f7;
+      --card: #ffffff;
+      --line: #e2ebe9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #00b894;
+      --accent-dark: #009878;
+      --nav: #0b1a2f;
+      --nav-muted: #8ca0ba;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .layout {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+    }
+
+    .sidebar {
+      background: var(--nav);
+      color: #fff;
+      padding: 24px 16px;
+      min-height: 100vh;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .brand {
+      color: #22d3aa;
+      font-weight: 700;
+      font-size: 24px;
+      margin: 0 0 16px;
+    }
+
+    .sidebar-group {
+      border: 1px solid rgba(140, 160, 186, 0.25);
+      background: rgba(9, 20, 38, 0.6);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 0;
+    }
+
+    .sidebar-title {
+      margin: 0 0 12px;
+      font-size: 12px;
+      color: var(--nav-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+    }
+
+    .content {
+      padding: 24px;
+    }
+
+    .panel {
+      max-width: 1300px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    h1 { margin: 0; font-size: 34px; }
+    .subtitle { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+
+    .app-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .app-tab {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #d7f8ee;
+      color: #045a46;
+    }
+    .app-tab.active { background: var(--accent); color: #fff; }
+
+    .sidebar-controls {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .version-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f8fffd;
+      border: 1px solid #cbeee5;
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+
+    .version-wrap label {
+      color: #065f46;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .version-wrap input {
+      width: 150px;
+      border: 1px solid #b4dfd5;
+      border-radius: 8px;
+      padding: 7px 8px;
+    }
+
+    button.action {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+    }
+    button.action:hover { background: var(--accent-dark); }
+    button.secondary { background: #2563eb; }
+    button.secondary:hover { background: #1d4ed8; }
+    button.danger { background: #dc2626; }
+    button.danger:hover { background: #b91c1c; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f0fdfa;
+      font-size: 13px;
+      color: #0f172a;
+    }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      padding: 8px;
+      font-size: 14px;
+      background: #fff;
+      font-family: inherit;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 56px;
+      line-height: 1.3;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .item-name-input {
+      min-height: 82px;
+    }
+
+    .status-dropdown {
+      min-height: 40px;
+    }
+
+    .version-wrap.sidebar-version {
+      margin-top: 0;
+      background: rgba(12, 47, 42, 0.45);
+      border-color: rgba(110, 231, 183, 0.25);
+      margin-bottom: 8px;
+    }
+
+    .version-wrap.sidebar-version label {
+      color: #a7f3d0;
+    }
+
+    .version-wrap.sidebar-version input {
+      background: #0f2938;
+      color: #e2e8f0;
+      border-color: #1f3d4d;
+    }
+
+    .status-dropdown[data-status="пройдено"] { background: #dcfce7; }
+    .status-dropdown[data-status="провалено"] { background: #fee2e2; }
+    .status-dropdown[data-status="заблоковано"] { background: #fef9c3; }
+    .status-dropdown[data-status="пропущено"] { background: #e0f2fe; }
+    .status-dropdown[data-status="готово"] { background: #e9d5ff; }
+    .status-dropdown[data-status="відхилено"] { background: #fecaca; }
+
+    .delete-btn {
+      border: none;
+      background: #ef4444;
+      color: #fff;
+      border-radius: 7px;
+      width: 100%;
+      padding: 8px;
+      cursor: pointer;
+    }
+    .delete-btn:hover { background: #dc2626; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2 class="brand">QA TA-DA Checout</h2>
+      <div class="sidebar-group">
+        <p class="sidebar-title">Застосунок</p>
+        <div class="app-tabs">
+          <button type="button" class="app-tab active" data-app-key="RMK">РМК</button>
+          <button type="button" class="app-tab" data-app-key="KSO">КСО</button>
+        </div>
+      </div>
+      <div class="sidebar-group">
+        <p class="sidebar-title">Керування</p>
+        <div class="version-wrap sidebar-version">
+          <label for="globalVersionInput">Версія</label>
+          <input id="globalVersionInput" type="text" placeholder="наприклад 1.9.8">
+        </div>
+        <div class="sidebar-controls">
+          <button id="addTestBtn" type="button" class="action">Додати тест</button>
+          <button id="refreshVersionBtn" type="button" class="action">Оновити версію</button>
+          <button id="resetAllBtn" type="button" class="action danger">Скинути все</button>
+          <button id="saveFileBtn" type="button" class="action secondary">Зберегти у файл (Excel)</button>
+        </div>
+      </div>
+    </aside>
+    <main class="content">
+      <section class="panel">
+        <div class="topbar">
+          <div>
+            <h1>Історія моїх звітів</h1>
+            <p class="subtitle">Перемикайте застосунок, ведіть перевірку і вивантажуйте Excel по аркушах.</p>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Назва пункту</th>
+              <th>Статус</th>
+              <th>Коментар</th>
+              <th>Дії</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    const STORAGE_KEY = "qaTestTableDataV3";
+    const STATUSES = ["пройдено", "провалено", "заблоковано", "пропущено", "готово", "відхилено"];
+    const previousKsoRows = [
+      "П1 Оновлення: Апка проходить етап оновлення через Firebase та успішно запускається.",
+      "П2 Запуск та стабільність: Апка запускається, успішно підключається до сервера та периферії.",
+      "П3 🔍Сканування (ШК): Звичайний товар зі штрих-кодом додається в кошик з коректною ціною.",
+      "П4 🔍Сканування (ШК/QR): бейдж-касира, бонусної картки клієнта за QR.",
+      "П5 Лояльність: Картка клієнта зчитується, бонуси/знижки відображаються на екрані.",
+      "П6 Ваговий товар: Апка правильно зчитує вагу та розраховує вартість за кг.",
+      "П7 💳Оплата карткою: Термінал активується, транзакція проходить успішно.",
+      "П8 Фіналізація: Друк фіскального чека виконано, сесія закрита, апка повернулася в старт.",
+      "П9 💳Оплата з використанням бонусів: перехід до вибору оплати, відповідна сума виведення на термінал, фінальна сума розрахована вірно.",
+      "П10 Фіналізація: Друк фіскального чека виконано, сесія закрита, апка повернулася в старт.",
+      "П11 💳Оплата повною кількістю бонусів: обрати акційні або харчовий товар та провести оплату способом повна оплата бонусами.",
+      "П12 Фіналізація: Друк фіскального чека виконано, сесія закрита, апка повернулася в старт.",
+      "П13 🔁Повернення товару (картка): Повернення на карту ініційовано, транзакція успішна, чек надруковано.",
+      "П14 💳Безнал вручну: Ручне введення суми безготівкової оплати працює коректно, транзакція проходить успішно, чек надруковано.",
+      "П15 X-звіт/Z-звіт: Формування X-звіту і закриття зміни з Z-звітом працює коректно, чеки друкуються."
+    ];
+    const newRmkRows = [
+      "Оновлення: Апка проходить етап оновлення через Firebase та успішно запускається.",
+      "Запуск та стабільність: Апка запускається, успішно підключається до сервера та периферії.",
+      "🔍Сканування (ШК): Звичайний товар зі штрих-кодом додається в кошик з коректною ціною.",
+      "🔍Сканування (ШК/QR): бейдж-касира, бонусної картки клієнта за QR.",
+      "Лояльність: Картка клієнта зчитується, бонуси/знижки відображаються на екрані.",
+      "Ваговий товар: Апка правильно зчитує вагу та розраховує вартість за кг.",
+      "💳Оплата карткою по двом робочим зонам (РМК/КСО): Термінал активується, транзакція проходить успішно.",
+      "Фіналізація: Друк фіскального чека виконано, сесія закрита, апка повернулася в старт.",
+      "💳Оплата готівкою по двом робочим зонам (РМК/КСО): Введення суми прийнятих коштів працює, решта розрахована вірно.",
+      "Решта на бонусну: При оплаті готівкою решта коректно зараховується на бонусну картку з урахуванням округлення.",
+      "Фіналізація: Друк фіскального чека виконано, сесія закрита, апка повернулася в старт.",
+      "💳Оплата з використанням бонусів по двом робочи зонам (РМК/КСО): перехід до вибору оплати, відповідна сума виведення на термінал, фінальна сума розрахована вірно.",
+      "💳Оплата з використанням повної оплати бонусами по двом робочи зонам (РМК/КСО): перехід до вибору оплати, відповідна сума виведення на термінал, фінальна сума розрахована вірно.",
+      "💳Оплата за допомогою функціоналу (без готівка вручну).",
+      "Інтернет-замовлення: Пошук інтернет-замовлення за номером працює, склад замовлення відображається коректно, кількість товару відовідна до реалізації.",
+      "💳Оплата карткою інтернет замовлення з використанням бонусів.",
+      "💳Оплата готівкою інтернет замовлення з використанням бонусів.",
+      "🔁Повернення товару (картка): Повернення на карту ініційовано, транзакція успішна, чек надруковано.",
+      "🔁Повернення товару (готівка): Повернення оформлюється, сума повернення коректна, чек повернення надруковано.",
+      "🔁Повернення товару (картка): Повернення на карту ініційовано, транзакція успішна, чек надруковано.",
+      "X-звіт: Формування X-звіту працює, дані відображаються коректно, друк виконано. Z-звіт: Закриття зміни з формуванням Z-звіту працює, чек надруковано, зміна закрита.",
+      "ЗАГАЛЬНИЙ ВЕРДИКТ"
+    ];
+
+    function toRows(list) {
+      return list.map((itemName) => ({ itemName, status: "", comment: "" }));
+    }
+
+    const APP_CONFIG = {
+      RMK: { label: "РМК", defaultVersion: "1.0.0", defaultRows: toRows(newRmkRows) },
+      KSO: { label: "КСО", defaultVersion: "1.0.0", defaultRows: toRows(previousKsoRows) }
+    };
+
+    const tableBody = document.getElementById("tableBody");
+    const appTabs = document.querySelectorAll(".app-tab");
+    const addTestBtn = document.getElementById("addTestBtn");
+    const refreshVersionBtn = document.getElementById("refreshVersionBtn");
+    const resetAllBtn = document.getElementById("resetAllBtn");
+    const saveFileBtn = document.getElementById("saveFileBtn");
+    const globalVersionInput = document.getElementById("globalVersionInput");
+
+    let state = {
+      activeApp: "RMK",
+      versionsByApp: {
+        RMK: APP_CONFIG.RMK.defaultVersion,
+        KSO: APP_CONFIG.KSO.defaultVersion
+      },
+      rowsByApp: {
+        RMK: APP_CONFIG.RMK.defaultRows.map((row) => ({ ...row })),
+        KSO: APP_CONFIG.KSO.defaultRows.map((row) => ({ ...row }))
+      }
+    };
+
+    function createStatusOptions(selectedStatus) {
+      const placeholder = '<option value="">-- Оберіть статус --</option>';
+      const statusOptions = STATUSES.map((status) => `<option value="${status}"${status === selectedStatus ? " selected" : ""}>${status}</option>`).join("");
+      return `${placeholder}${statusOptions}`;
+    }
+    function updateStatusColor(selectElement) {
+      selectElement.dataset.status = selectElement.value;
+    }
+    function createRow(rowData = { itemName: "", status: "", comment: "" }) {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><textarea class="item-name-input">${rowData.itemName}</textarea></td>
+        <td><select class="status-dropdown">${createStatusOptions(rowData.status)}</select></td>
+        <td><textarea class="comment-input" placeholder="Додайте коментар">${rowData.comment}</textarea></td>
+        <td><button type="button" class="delete-btn" title="Видалити тест">&#128465;</button></td>
+      `;
+      updateStatusColor(row.querySelector(".status-dropdown"));
+      row.querySelectorAll("textarea").forEach(autoResizeTextarea);
+      return row;
+    }
+    function readRowsFromTable() {
+      return Array.from(tableBody.querySelectorAll("tr")).map((row) => ({
+        itemName: row.querySelector(".item-name-input").value,
+        status: row.querySelector(".status-dropdown").value,
+        comment: row.querySelector(".comment-input").value
+      }));
+    }
+    function saveActiveAppRows() {
+      state.rowsByApp[state.activeApp] = readRowsFromTable();
+      state.versionsByApp[state.activeApp] = globalVersionInput.value.trim();
+    }
+    function saveData() {
+      saveActiveAppRows();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+    function renderRows(rows) {
+      tableBody.innerHTML = "";
+      rows.forEach((rowData) => tableBody.appendChild(createRow(rowData)));
+      globalVersionInput.value = state.versionsByApp[state.activeApp] || "";
+    }
+    function autoResizeTextarea(textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+    function setActiveTabUI() {
+      appTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.appKey === state.activeApp));
+    }
+    function switchApp(appKey) {
+      saveActiveAppRows();
+      state.activeApp = appKey;
+      setActiveTabUI();
+      renderRows(state.rowsByApp[state.activeApp] || []);
+      saveData();
+    }
+    function loadData() {
+      const rawData = localStorage.getItem(STORAGE_KEY);
+      if (!rawData) {
+        setActiveTabUI();
+        renderRows(state.rowsByApp[state.activeApp]);
+        saveData();
+        return;
+      }
+      try {
+        const parsed = JSON.parse(rawData);
+        if (parsed && parsed.rowsByApp && parsed.versionsByApp) {
+          state.activeApp = parsed.activeApp in APP_CONFIG ? parsed.activeApp : "RMK";
+          state.rowsByApp.RMK = Array.isArray(parsed.rowsByApp.RMK) ? parsed.rowsByApp.RMK : APP_CONFIG.RMK.defaultRows.map((r) => ({ ...r }));
+          state.rowsByApp.KSO = Array.isArray(parsed.rowsByApp.KSO) ? parsed.rowsByApp.KSO : APP_CONFIG.KSO.defaultRows.map((r) => ({ ...r }));
+          state.versionsByApp.RMK = typeof parsed.versionsByApp.RMK === "string" ? parsed.versionsByApp.RMK : APP_CONFIG.RMK.defaultVersion;
+          state.versionsByApp.KSO = typeof parsed.versionsByApp.KSO === "string" ? parsed.versionsByApp.KSO : APP_CONFIG.KSO.defaultVersion;
+        }
+      } catch (error) {
+        // fallback to defaults
+      }
+      setActiveTabUI();
+      renderRows(state.rowsByApp[state.activeApp]);
+    }
+    function clearStatusesOnly() {
+      tableBody.querySelectorAll(".status-dropdown").forEach((dropdown) => {
+        dropdown.value = "";
+        updateStatusColor(dropdown);
+      });
+      saveData();
+    }
+    function exportToExcelFile() {
+      if (typeof XLSX === "undefined") {
+        alert("Не вдалося завантажити бібліотеку для Excel-експорту.");
+        return;
+      }
+      saveActiveAppRows();
+      const workbook = XLSX.utils.book_new();
+      Object.keys(APP_CONFIG).forEach((appKey) => {
+        const rows = state.rowsByApp[appKey] || [];
+        if (!rows.length) return;
+        const version = state.versionsByApp[appKey] || "";
+        const sheetData = rows.map((row) => ({
+          "Застосунок": APP_CONFIG[appKey].label,
+          "Версія": version,
+          "Назва пункту": row.itemName,
+          "Статус": row.status,
+          "Коментар": row.comment
+        }));
+        const sheet = XLSX.utils.json_to_sheet(sheetData);
+        XLSX.utils.book_append_sheet(workbook, sheet, APP_CONFIG[appKey].label.slice(0, 31));
+      });
+      XLSX.writeFile(workbook, "qa-test-report.xlsx");
+    }
+
+    loadData();
+
+    addTestBtn.addEventListener("click", () => {
+      tableBody.appendChild(createRow());
+      saveData();
+    });
+    refreshVersionBtn.addEventListener("click", clearStatusesOnly);
+    resetAllBtn.addEventListener("click", () => {
+      state = {
+        activeApp: "RMK",
+        versionsByApp: { RMK: APP_CONFIG.RMK.defaultVersion, KSO: APP_CONFIG.KSO.defaultVersion },
+        rowsByApp: {
+          RMK: APP_CONFIG.RMK.defaultRows.map((row) => ({ ...row })),
+          KSO: APP_CONFIG.KSO.defaultRows.map((row) => ({ ...row }))
+        }
+      };
+      localStorage.removeItem(STORAGE_KEY);
+      setActiveTabUI();
+      renderRows(state.rowsByApp[state.activeApp]);
+      saveData();
+    });
+    saveFileBtn.addEventListener("click", exportToExcelFile);
+    globalVersionInput.addEventListener("input", saveData);
+    tableBody.addEventListener("input", (event) => {
+      if (!event.target.matches("input, select, textarea")) return;
+      if (event.target.matches("textarea")) autoResizeTextarea(event.target);
+      if (event.target.matches(".status-dropdown")) updateStatusColor(event.target);
+      saveData();
+    });
+    tableBody.addEventListener("click", (event) => {
+      if (!event.target.closest(".delete-btn")) return;
+      const row = event.target.closest("tr");
+      row.remove();
+      saveData();
+    });
+    appTabs.forEach((tab) => tab.addEventListener("click", () => switchApp(tab.dataset.appKey)));
+  </script>
+</body>
+</html>
