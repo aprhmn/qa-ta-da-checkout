@@ -6,12 +6,14 @@
   <title>QA Tracker</title>
   <style>
     :root {
-      color-scheme: light;
-      --bg: #f4f8f7;
-      --card: #ffffff;
-      --line: #e2ebe9;
-      --text: #0f172a;
-      --muted: #64748b;
+      color-scheme: dark;
+      --bg: #070b10;
+      --card: #0f1724;
+      --line: #243044;
+      --text: #e8eef5;
+      --muted: #8fa3b8;
+      --input-bg: #0a1018;
+      --table-head: #152232;
       --accent: #00b894;
       --accent-dark: #009878;
       --nav: #0b1a2f;
@@ -77,7 +79,7 @@
       border: 1px solid var(--line);
       border-radius: 16px;
       padding: 20px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
     }
 
     .topbar {
@@ -91,6 +93,13 @@
 
     h1 { margin: 0; font-size: 34px; }
     .subtitle { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+    .theme-legend {
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+      max-width: 52rem;
+    }
 
     .app-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
     .app-tab {
@@ -99,8 +108,11 @@
       padding: 10px 14px;
       font-weight: 700;
       cursor: pointer;
-      background: #d7f8ee;
-      color: #045a46;
+      background: rgba(34, 211, 170, 0.14);
+      color: #7dd3c0;
+    }
+    .app-tab:hover {
+      background: rgba(34, 211, 170, 0.24);
     }
     .app-tab.active { background: var(--accent); color: #fff; }
 
@@ -114,23 +126,25 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: #f8fffd;
-      border: 1px solid #cbeee5;
+      background: rgba(0, 184, 148, 0.08);
+      border: 1px solid rgba(0, 184, 148, 0.22);
       border-radius: 10px;
       padding: 8px 10px;
     }
 
     .version-wrap label {
-      color: #065f46;
+      color: #7dd3c0;
       font-size: 13px;
       font-weight: 700;
     }
 
     .version-wrap input {
       width: 150px;
-      border: 1px solid #b4dfd5;
+      border: 1px solid var(--line);
       border-radius: 8px;
       padding: 7px 8px;
+      background: var(--input-bg);
+      color: var(--text);
     }
 
     button.action {
@@ -158,7 +172,7 @@
       border: 1px solid var(--line);
       border-radius: 12px;
       overflow: hidden;
-      background: #fff;
+      background: var(--card);
     }
     th, td {
       border: 1px solid var(--line);
@@ -167,18 +181,35 @@
       vertical-align: top;
     }
     th {
-      background: #f0fdfa;
+      background: var(--table-head);
       font-size: 13px;
-      color: #0f172a;
+      color: var(--text);
     }
     input, select, textarea {
       width: 100%;
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--line);
       border-radius: 7px;
       padding: 8px;
       font-size: 14px;
-      background: #fff;
+      background: var(--input-bg);
+      color: var(--text);
       font-family: inherit;
+    }
+    input::placeholder,
+    textarea::placeholder {
+      color: var(--muted);
+      opacity: 0.9;
+    }
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid rgba(0, 184, 148, 0.35);
+      outline-offset: 1px;
+      border-color: var(--accent);
+    }
+    select option {
+      background: var(--input-bg);
+      color: var(--text);
     }
 
     textarea {
@@ -214,23 +245,100 @@
       border-color: #1f3d4d;
     }
 
-    .status-dropdown[data-status="пройдено"] { background: #dcfce7; }
-    .status-dropdown[data-status="провалено"] { background: #fee2e2; }
-    .status-dropdown[data-status="заблоковано"] { background: #fef9c3; }
-    .status-dropdown[data-status="пропущено"] { background: #e0f2fe; }
-    .status-dropdown[data-status="готово"] { background: #e9d5ff; }
-    .status-dropdown[data-status="відхилено"] { background: #fecaca; }
+    .status-dropdown[data-status="пройдено"] { background: rgba(34, 197, 94, 0.22); color: #bbf7d0; }
+    .status-dropdown[data-status="провалено"] { background: rgba(239, 68, 68, 0.22); color: #fecaca; }
+    .status-dropdown[data-status="заблоковано"] { background: rgba(234, 179, 8, 0.2); color: #fef08a; }
+    .status-dropdown[data-status="пропущено"] { background: rgba(56, 189, 248, 0.2); color: #bae6fd; }
+    .status-dropdown[data-status="готово"] { background: rgba(168, 85, 247, 0.22); color: #e9d5ff; }
+    .status-dropdown[data-status="відхилено"] { background: rgba(248, 113, 113, 0.25); color: #fecaca; }
 
-    .delete-btn {
-      border: none;
-      background: #ef4444;
-      color: #fff;
-      border-radius: 7px;
-      width: 100%;
-      padding: 8px;
-      cursor: pointer;
+    .actions-th {
+      width: 1%;
+      white-space: nowrap;
+      text-align: right;
+      font-weight: 700;
     }
-    .delete-btn:hover { background: #dc2626; }
+    .actions-cell {
+      vertical-align: middle;
+      width: 1%;
+      padding: 6px 8px;
+    }
+    .row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+    .row-action-btn {
+      box-sizing: border-box;
+      min-width: 32px;
+      height: 32px;
+      padding: 0 6px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .row-action-btn:hover {
+      background: var(--table-head);
+      border-color: rgba(0, 184, 148, 0.45);
+    }
+    .row-action-duplicate {
+      font-size: 16px;
+    }
+    .row-action-clear {
+      font-size: 17px;
+      color: var(--muted);
+    }
+    .row-action-clear:hover {
+      color: var(--text);
+    }
+    .row-action-delete {
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fecaca;
+      background: rgba(239, 68, 68, 0.1);
+    }
+    .row-action-delete:hover {
+      background: #dc2626;
+      color: #fff;
+      border-color: #dc2626;
+    }
+
+    /* Тематичний фон лише для колонки «Назва пункту» і лише для головних етапів чекліста */
+    tbody tr > td:first-child {
+      transition: background-color 0.15s ease;
+    }
+    tbody tr.row-theme-verdict > td:first-child {
+      background: rgba(234, 179, 8, 0.14);
+    }
+    tbody tr.row-theme-returns > td:first-child {
+      background: rgba(244, 63, 94, 0.12);
+    }
+    tbody tr.row-theme-reports > td:first-child {
+      background: rgba(56, 189, 248, 0.11);
+    }
+    tbody tr.row-theme-weborder > td:first-child {
+      background: rgba(167, 139, 250, 0.13);
+    }
+    tbody tr.row-theme-scan > td:first-child {
+      background: rgba(34, 211, 238, 0.1);
+    }
+    tbody tr.row-theme-update > td:first-child {
+      background: rgba(129, 140, 248, 0.12);
+    }
+    tbody tr.row-theme-startup > td:first-child {
+      background: rgba(96, 165, 250, 0.11);
+    }
+    tbody tr.row-theme-default > td:first-child {
+      background: transparent;
+    }
   </style>
 </head>
 <body>
@@ -238,7 +346,7 @@
     <aside class="sidebar">
       <h2 class="brand">QA TA-DA Checout</h2>
       <div class="sidebar-group">
-        <p class="sidebar-title">Застосунок</p>
+        <p class="sidebar-title">Цифрова касова система</p>
         <div class="app-tabs">
           <button type="button" class="app-tab active" data-app-key="RMK">РМК</button>
           <button type="button" class="app-tab" data-app-key="KSO">КСО</button>
@@ -264,16 +372,25 @@
           <div>
             <h1>Історія моїх звітів</h1>
             <p class="subtitle">Перемикайте застосунок, ведіть перевірку і вивантажуйте Excel по аркушах.</p>
+            <p class="theme-legend">
+              Колір тла лише в <strong>«Назва пункту»</strong> і лише для <strong>головних етапів</strong>: оновлення, запуск, сканування, інтернет-замовлення (без рядків оплати), оплата/лояльність/фіналізація та інші кроки — без підсвітки, у базовому стилі таблиці.
+            </p>
           </div>
         </div>
 
         <table>
+          <colgroup>
+            <col style="width: 38%;">
+            <col style="width: 16%;">
+            <col style="width: 36%;">
+            <col style="width: 10%;">
+          </colgroup>
           <thead>
             <tr>
               <th>Назва пункту</th>
               <th>Статус</th>
               <th>Коментар</th>
-              <th>Дії</th>
+              <th class="actions-th" title="Дублювати рядок, очистити поля або видалити">Дії</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -286,6 +403,34 @@
   <script>
     const STORAGE_KEY = "qaTestTableDataV3";
     const STATUSES = ["пройдено", "провалено", "заблоковано", "пропущено", "готово", "відхилено"];
+    const ROW_THEME_PREFIX = "row-theme-";
+
+    /**
+     * Лише головні етапи чекліста отримують тему; решта — базовий вигляд.
+     * Інтернет-замовлення: підсвітка тільки для рядка про замовлення, не для рядків з оплатою (💳 / «Оплат…» на початку).
+     */
+    function getRowThemeClass(itemName) {
+      const raw = itemName || "";
+      const t = raw.toLowerCase();
+      const paymentLikeStart = /^\s*(п\d+\s+)?(💳|оплат)/i.test(raw);
+
+      if (/загальний\s+вердикт/i.test(raw)) return `${ROW_THEME_PREFIX}verdict`;
+      if (/🔁|повернення/i.test(raw)) return `${ROW_THEME_PREFIX}returns`;
+      if (/x-звіт|z-звіт/i.test(t)) return `${ROW_THEME_PREFIX}reports`;
+      if (/інтернет[-\s]*замовлення/i.test(t) && !paymentLikeStart) return `${ROW_THEME_PREFIX}weborder`;
+      if (/🔍|\bскануван/i.test(raw)) return `${ROW_THEME_PREFIX}scan`;
+      if (/оновлен|firebase/i.test(t)) return `${ROW_THEME_PREFIX}update`;
+      if (/запуск\s+та\s+стабільність/i.test(t)) return `${ROW_THEME_PREFIX}startup`;
+      return `${ROW_THEME_PREFIX}default`;
+    }
+
+    function updateRowTheme(tr) {
+      if (!tr) return;
+      const nameInput = tr.querySelector(".item-name-input");
+      const nextClass = getRowThemeClass(nameInput ? nameInput.value : "");
+      [...tr.classList].filter((c) => c.startsWith(ROW_THEME_PREFIX)).forEach((c) => tr.classList.remove(c));
+      tr.classList.add(nextClass);
+    }
     const previousKsoRows = [
       "П1 Оновлення: Апка проходить етап оновлення через Firebase та успішно запускається.",
       "П2 Запуск та стабільність: Апка запускається, успішно підключається до сервера та периферії.",
@@ -365,16 +510,30 @@
     function updateStatusColor(selectElement) {
       selectElement.dataset.status = selectElement.value;
     }
+    function readRowFromTr(tr) {
+      return {
+        itemName: tr.querySelector(".item-name-input").value,
+        status: tr.querySelector(".status-dropdown").value,
+        comment: tr.querySelector(".comment-input").value
+      };
+    }
     function createRow(rowData = { itemName: "", status: "", comment: "" }) {
       const row = document.createElement("tr");
       row.innerHTML = `
         <td><textarea class="item-name-input">${rowData.itemName}</textarea></td>
         <td><select class="status-dropdown">${createStatusOptions(rowData.status)}</select></td>
         <td><textarea class="comment-input" placeholder="Додайте коментар">${rowData.comment}</textarea></td>
-        <td><button type="button" class="delete-btn" title="Видалити тест">&#128465;</button></td>
+        <td class="actions-cell">
+          <div class="row-actions">
+            <button type="button" class="row-action-btn row-action-duplicate" title="Дублювати рядок (копія під цим)" aria-label="Дублювати рядок">⧉</button>
+            <button type="button" class="row-action-btn row-action-clear" title="Очистити назву, статус і коментар" aria-label="Очистити поля рядка">↺</button>
+            <button type="button" class="row-action-btn row-action-delete" title="Видалити рядок" aria-label="Видалити рядок">🗑</button>
+          </div>
+        </td>
       `;
       updateStatusColor(row.querySelector(".status-dropdown"));
       row.querySelectorAll("textarea").forEach(autoResizeTextarea);
+      updateRowTheme(row);
       return row;
     }
     function readRowsFromTable() {
@@ -492,13 +651,37 @@
       if (!event.target.matches("input, select, textarea")) return;
       if (event.target.matches("textarea")) autoResizeTextarea(event.target);
       if (event.target.matches(".status-dropdown")) updateStatusColor(event.target);
+      if (event.target.matches(".item-name-input")) updateRowTheme(event.target.closest("tr"));
       saveData();
     });
     tableBody.addEventListener("click", (event) => {
-      if (!event.target.closest(".delete-btn")) return;
+      const dupBtn = event.target.closest(".row-action-duplicate");
+      const clearBtn = event.target.closest(".row-action-clear");
+      const delBtn = event.target.closest(".row-action-delete");
       const row = event.target.closest("tr");
-      row.remove();
-      saveData();
+      if (!row) return;
+      if (dupBtn) {
+        const copy = createRow(readRowFromTr(row));
+        row.insertAdjacentElement("afterend", copy);
+        copy.querySelectorAll("textarea").forEach(autoResizeTextarea);
+        saveData();
+        return;
+      }
+      if (clearBtn) {
+        row.querySelector(".item-name-input").value = "";
+        row.querySelector(".comment-input").value = "";
+        const statusEl = row.querySelector(".status-dropdown");
+        statusEl.value = "";
+        updateStatusColor(statusEl);
+        row.querySelectorAll("textarea").forEach(autoResizeTextarea);
+        updateRowTheme(row);
+        saveData();
+        return;
+      }
+      if (delBtn) {
+        row.remove();
+        saveData();
+      }
     });
     appTabs.forEach((tab) => tab.addEventListener("click", () => switchApp(tab.dataset.appKey)));
   </script>
