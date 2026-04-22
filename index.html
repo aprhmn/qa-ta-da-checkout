@@ -70,6 +70,7 @@
 
     .content {
       padding: 24px;
+      min-width: 0;
     }
 
     .panel {
@@ -173,6 +174,12 @@
       border-radius: 12px;
       overflow: hidden;
       background: var(--card);
+    }
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 12px;
     }
     th, td {
       border: 1px solid var(--line);
@@ -339,6 +346,102 @@
     tbody tr.row-theme-default > td:first-child {
       background: transparent;
     }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 220px 1fr;
+      }
+
+      .content {
+        padding: 16px;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+    }
+
+    @media (max-width: 840px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        min-height: auto;
+        padding: 14px;
+        gap: 12px;
+      }
+
+      .brand {
+        margin: 0;
+        font-size: 21px;
+      }
+
+      .sidebar-group {
+        padding: 12px;
+      }
+
+      .sidebar-controls {
+        gap: 8px;
+      }
+
+      button.action {
+        text-align: center;
+      }
+
+      .content {
+        padding: 12px;
+      }
+
+      .panel {
+        padding: 12px;
+      }
+
+      .topbar {
+        margin-bottom: 10px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .table-wrap table {
+        min-width: 740px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .version-wrap {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+      }
+
+      .version-wrap input {
+        width: 100%;
+      }
+
+      .app-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .app-tab {
+        width: 100%;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -374,23 +477,25 @@
           </div>
         </div>
 
-        <table>
-          <colgroup>
-            <col style="width: 38%;">
-            <col style="width: 16%;">
-            <col style="width: 36%;">
-            <col style="width: 10%;">
-          </colgroup>
-          <thead>
-            <tr>
-              <th>Назва пункту</th>
-              <th>Статус</th>
-              <th>Коментар</th>
-              <th class="actions-th" title="Дублювати рядок, очистити поля або видалити">Дії</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
+        <div class="table-wrap">
+          <table>
+            <colgroup>
+              <col style="width: 38%;">
+              <col style="width: 16%;">
+              <col style="width: 36%;">
+              <col style="width: 10%;">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Назва пункту</th>
+                <th>Статус</th>
+                <th>Коментар</th>
+                <th class="actions-th" title="Дублювати рядок, очистити поля або видалити">Дії</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
       </section>
     </main>
   </div>
