@@ -453,6 +453,7 @@
         <div class="app-tabs">
           <button type="button" class="app-tab active" data-app-key="RMK">РМК</button>
           <button type="button" class="app-tab" data-app-key="KSO">КСО</button>
+          <button type="button" class="app-tab" data-app-key="MG">MG</button>
         </div>
       </div>
       <div class="sidebar-group">
@@ -482,14 +483,14 @@
             <colgroup>
               <col style="width: 38%;">
               <col style="width: 16%;">
-              <col style="width: 36%;">
+              <col id="commentCol" style="width: 36%;">
               <col style="width: 10%;">
             </colgroup>
             <thead>
               <tr>
                 <th>Назва пункту</th>
                 <th>Статус</th>
-                <th>Коментар</th>
+                <th id="commentHeader">Коментар</th>
                 <th class="actions-th" title="Дублювати рядок, очистити поля або видалити">Дії</th>
               </tr>
             </thead>
@@ -573,14 +574,32 @@
       "X-звіт: Формування X-звіту працює, дані відображаються коректно, друк виконано. Z-звіт: Закриття зміни з формуванням Z-звіту працює, чек надруковано, зміна закрита.",
       "ЗАГАЛЬНИЙ ВЕРДИКТ"
     ];
+    const mgRows = [
+      "Перевірка шапки та QR-коду: на кожному роздрукованому документі відображається правильна шапка та сканується коректний QR-код.",
+      "Продаж товару без ПДВ: роздрукований чек містить правильну податкову ставку.",
+      "Продаж товару з ПДВ 20%: роздрукований чек містить правильну податкову ставку.",
+      "Продаж товару зі знижкою/акцією: роздрукований чек містить правильну податкову ставку та коректно відображає суму знижки на товарі.",
+      "Продаж з кількома податками: роздрукований чек містить правильні податкові ставки для кожного товару окремо.",
+      "Оплата готівкою: роздрукований чек містить тип оплати \"Готівка\" та коректну суму решти.",
+      "Оплата безготівкою (картка): роздрукований чек містить тип оплати \"Картка\"/\"Безготівка\".",
+      "Службове внесення: роздрукований чек внесення містить коректну суму.",
+      "Службове вилучення: роздрукований чек вилучення містить коректну суму.",
+      "Повернення товару: роздрукований видатковий чек містить правильні суми та податки, що відповідають чеку продажу.",
+      "Друк копії останнього чека: роздрукований документ є точною копією останнього чека.",
+      "Видача інтернет-замовлення.",
+      "Генерація X-звіту: роздрукований звіт містить коректні поточні підсумки.",
+      "Генерація Z-звіту: роздрукований звіт містить коректні підсумки за зміну, зміна успішно закрита.",
+      "Апаратні помилки принтера: система показує сповіщення при вимкненому РРО, закінченні паперу, відкритій кришці або втраті TCP/IP з'єднання."
+    ];
 
     function toRows(list) {
       return list.map((itemName) => ({ itemName, status: "", comment: "" }));
     }
 
     const APP_CONFIG = {
-      RMK: { label: "РМК", defaultVersion: "1.0.0", defaultRows: toRows(newRmkRows) },
-      KSO: { label: "КСО", defaultVersion: "1.0.0", defaultRows: toRows(previousKsoRows) }
+      RMK: { label: "РМК", defaultVersion: "1.0.0", defaultRows: toRows(newRmkRows), hasComment: true },
+      KSO: { label: "КСО", defaultVersion: "1.0.0", defaultRows: toRows(previousKsoRows), hasComment: true },
+      MG: { label: "MG", defaultVersion: "1.0.0", defaultRows: toRows(mgRows), hasComment: false }
     };
 
     const tableBody = document.getElementById("tableBody");
@@ -590,16 +609,20 @@
     const resetAllBtn = document.getElementById("resetAllBtn");
     const saveFileBtn = document.getElementById("saveFileBtn");
     const globalVersionInput = document.getElementById("globalVersionInput");
+    const commentHeader = document.getElementById("commentHeader");
+    const commentCol = document.getElementById("commentCol");
 
     let state = {
       activeApp: "RMK",
       versionsByApp: {
         RMK: APP_CONFIG.RMK.defaultVersion,
-        KSO: APP_CONFIG.KSO.defaultVersion
+        KSO: APP_CONFIG.KSO.defaultVersion,
+        MG: APP_CONFIG.MG.defaultVersion
       },
       rowsByApp: {
         RMK: APP_CONFIG.RMK.defaultRows.map((row) => ({ ...row })),
-        KSO: APP_CONFIG.KSO.defaultRows.map((row) => ({ ...row }))
+        KSO: APP_CONFIG.KSO.defaultRows.map((row) => ({ ...row })),
+        MG: APP_CONFIG.MG.defaultRows.map((row) => ({ ...row }))
       }
     };
 
@@ -615,15 +638,16 @@
       return {
         itemName: tr.querySelector(".item-name-input").value,
         status: tr.querySelector(".status-dropdown").value,
-        comment: tr.querySelector(".comment-input").value
+        comment: tr.querySelector(".comment-input")?.value || ""
       };
     }
     function createRow(rowData = { itemName: "", status: "", comment: "" }) {
+      const showComment = APP_CONFIG[state.activeApp].hasComment;
       const row = document.createElement("tr");
       row.innerHTML = `
         <td><textarea class="item-name-input">${rowData.itemName}</textarea></td>
         <td><select class="status-dropdown">${createStatusOptions(rowData.status)}</select></td>
-        <td><textarea class="comment-input" placeholder="Додайте коментар">${rowData.comment}</textarea></td>
+        ${showComment ? `<td><textarea class="comment-input" placeholder="Додайте коментар">${rowData.comment || ""}</textarea></td>` : ""}
         <td class="actions-cell">
           <div class="row-actions">
             <button type="button" class="row-action-btn row-action-duplicate" title="Дублювати рядок (копія під цим)" aria-label="Дублювати рядок">⧉</button>
@@ -641,7 +665,7 @@
       return Array.from(tableBody.querySelectorAll("tr")).map((row) => ({
         itemName: row.querySelector(".item-name-input").value,
         status: row.querySelector(".status-dropdown").value,
-        comment: row.querySelector(".comment-input").value
+        comment: row.querySelector(".comment-input")?.value || ""
       }));
     }
     function saveActiveAppRows() {
@@ -654,6 +678,9 @@
     }
     function renderRows(rows) {
       tableBody.innerHTML = "";
+      const showComment = APP_CONFIG[state.activeApp].hasComment;
+      commentHeader.style.display = showComment ? "" : "none";
+      commentCol.style.display = showComment ? "" : "none";
       rows.forEach((rowData) => tableBody.appendChild(createRow(rowData)));
       globalVersionInput.value = state.versionsByApp[state.activeApp] || "";
     }
@@ -685,8 +712,10 @@
           state.activeApp = parsed.activeApp in APP_CONFIG ? parsed.activeApp : "RMK";
           state.rowsByApp.RMK = Array.isArray(parsed.rowsByApp.RMK) ? parsed.rowsByApp.RMK : APP_CONFIG.RMK.defaultRows.map((r) => ({ ...r }));
           state.rowsByApp.KSO = Array.isArray(parsed.rowsByApp.KSO) ? parsed.rowsByApp.KSO : APP_CONFIG.KSO.defaultRows.map((r) => ({ ...r }));
+          state.rowsByApp.MG = Array.isArray(parsed.rowsByApp.MG) ? parsed.rowsByApp.MG : APP_CONFIG.MG.defaultRows.map((r) => ({ ...r }));
           state.versionsByApp.RMK = typeof parsed.versionsByApp.RMK === "string" ? parsed.versionsByApp.RMK : APP_CONFIG.RMK.defaultVersion;
           state.versionsByApp.KSO = typeof parsed.versionsByApp.KSO === "string" ? parsed.versionsByApp.KSO : APP_CONFIG.KSO.defaultVersion;
+          state.versionsByApp.MG = typeof parsed.versionsByApp.MG === "string" ? parsed.versionsByApp.MG : APP_CONFIG.MG.defaultVersion;
         }
       } catch (error) {
         // fallback to defaults
@@ -735,10 +764,11 @@
     resetAllBtn.addEventListener("click", () => {
       state = {
         activeApp: "RMK",
-        versionsByApp: { RMK: APP_CONFIG.RMK.defaultVersion, KSO: APP_CONFIG.KSO.defaultVersion },
+        versionsByApp: { RMK: APP_CONFIG.RMK.defaultVersion, KSO: APP_CONFIG.KSO.defaultVersion, MG: APP_CONFIG.MG.defaultVersion },
         rowsByApp: {
           RMK: APP_CONFIG.RMK.defaultRows.map((row) => ({ ...row })),
-          KSO: APP_CONFIG.KSO.defaultRows.map((row) => ({ ...row }))
+          KSO: APP_CONFIG.KSO.defaultRows.map((row) => ({ ...row })),
+          MG: APP_CONFIG.MG.defaultRows.map((row) => ({ ...row }))
         }
       };
       localStorage.removeItem(STORAGE_KEY);
@@ -770,7 +800,8 @@
       }
       if (clearBtn) {
         row.querySelector(".item-name-input").value = "";
-        row.querySelector(".comment-input").value = "";
+        const commentInput = row.querySelector(".comment-input");
+        if (commentInput) commentInput.value = "";
         const statusEl = row.querySelector(".status-dropdown");
         statusEl.value = "";
         updateStatusColor(statusEl);
